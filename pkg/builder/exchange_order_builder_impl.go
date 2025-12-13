@@ -8,8 +8,8 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ivanzzeth/ethsig"
 	"github.com/ivanzzeth/ethsig/eip712"
-	"github.com/ivanzzeth/polymarket-go-order-utils/pkg/model"
-	"github.com/ivanzzeth/polymarket-go-order-utils/pkg/utils"
+	"github.com/ivanzzeth/opinion-go-order-utils/pkg/model"
+	"github.com/ivanzzeth/opinion-go-order-utils/pkg/utils"
 )
 
 type ExchangeOrderBuilderImpl struct {

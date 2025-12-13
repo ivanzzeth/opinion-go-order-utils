@@ -9,7 +9,7 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ivanzzeth/ethsig"
 	polymarketcontracts "github.com/ivanzzeth/polymarket-go-contracts"
-	"github.com/ivanzzeth/polymarket-go-order-utils/pkg/model"
+	"github.com/ivanzzeth/opinion-go-order-utils/pkg/model"
 	"github.com/stretchr/testify/assert"
 )
 

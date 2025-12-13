@@ -432,14 +432,32 @@ func TestBuildSignedOrder2(t *testing.T) {
 }
 
 // TestBuildSignedOrderBNBChain tests order signing for BNB Chain based on Python SDK test case
+// This test directly corresponds to test_sign_order in order_builder_test.py
 func TestBuildSignedOrderBNBChain(t *testing.T) {
-	// BNB Chain mainnet
+	// BNB Chain mainnet - matching Python SDK test
+	// exchange_address = "0xF0aebf65490374a477100351291c736c73c11D9F"
+	// chain_id = 56
 	bnbChainId := new(big.Int).SetInt64(56)
 	// Use fixed salt = 1 as in Python test (lambda: 1)
 	builder := NewExchangeOrderBuilderImpl(bnbChainId, func() int64 { return 1 })
 	ethSigner := ethsig.NewEthPrivateKeySigner(privateKey)
 
-	// Test case from Python SDK: order_builder_test.py
+	// Verify signer address matches Python SDK test
+	// Python: signer.address() == '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266'
+	signerAddr := ethSigner.GetAddress()
+	assert.Equal(t, signerAddress, signerAddr, "invalid signer address")
+
+	// Test case from Python SDK: order_builder_test.py - test_sign_order
+	// OrderData parameters match exactly:
+	//   maker='0x8edbd5d17f368a50a7f8c0b1bbc0c9fcd0c2ccb3'
+	//   taker=ZERO_ADDRESS
+	//   tokenId='102955147056674320605625831094933410586073394253729381009399467166952809400644'
+	//   makerAmount='50'
+	//   takerAmount='100'
+	//   side=BUY
+	//   feeRateBps='0'
+	//   signer=signer.address()
+	//   signatureType=POLY_GNOSIS_SAFE
 	signedOrder, err := builder.BuildSignedOrder(ethSigner, &model.OrderData{
 		Maker:         "0x8edbd5d17f368a50a7f8c0b1bbc0c9fcd0c2ccb3",
 		Taker:         common.HexToAddress("0x0").Hex(),
@@ -455,7 +473,7 @@ func TestBuildSignedOrderBNBChain(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotNil(t, signedOrder)
 
-	// Verify order fields first
+	// Verify order fields match Python SDK test expectations
 	assert.Equal(t, int64(1), signedOrder.Salt.Int64())
 	assert.Equal(t, common.HexToAddress("0x8edbd5d17f368a50a7f8c0b1bbc0c9fcd0c2ccb3"), signedOrder.Maker)
 	assert.Equal(t, signerAddress, signedOrder.Signer)
@@ -467,11 +485,16 @@ func TestBuildSignedOrderBNBChain(t *testing.T) {
 	assert.Equal(t, "0", signedOrder.FeeRateBps.String())
 	assert.NotEmpty(t, signedOrder.Signature)
 
-	// Print actual signature for debugging
-	t.Logf("Actual signature: %s", common.Bytes2Hex(signedOrder.Signature))
-	t.Logf("Expected signature: 4e2fbeb4959ddee243c682d2ebce61785cb03c1accb6b13a058df62d935ddf4941226aaa28dd1d71f150dc1708e9bfc22aab0bbb77690609e5692d2b7fd8ef3d1c")
+	// Python SDK expected signature: '0x4e2fbeb4959ddee243c682d2ebce61785cb03c1accb6b13a058df62d935ddf4941226aaa28dd1d71f150dc1708e9bfc22aab0bbb77690609e5692d2b7fd8ef3d1c'
+	// Note: Python SDK includes '0x' prefix, Go returns raw bytes
+	expectedSignature := "4e2fbeb4959ddee243c682d2ebce61785cb03c1accb6b13a058df62d935ddf4941226aaa28dd1d71f150dc1708e9bfc22aab0bbb77690609e5692d2b7fd8ef3d1c"
+	actualSignature := common.Bytes2Hex(signedOrder.Signature)
 
-	// TODO: Verify signature matches Python SDK after debugging EIP-712 hash calculation
-	// expectedSignature := "4e2fbeb4959ddee243c682d2ebce61785cb03c1accb6b13a058df62d935ddf4941226aaa28dd1d71f150dc1708e9bfc22aab0bbb77690609e5692d2b7fd8ef3d1c"
-	// assert.Equal(t, expectedSignature, common.Bytes2Hex(signedOrder.Signature))
+	// TODO: Debug signature mismatch - currently Go signature differs from Python SDK
+	// This may be due to EIP-712 hash calculation differences
+	t.Logf("Actual signature: %s", actualSignature)
+	t.Logf("Expected signature: %s", expectedSignature)
+
+	// Uncomment when signature calculation is fixed:
+	// assert.Equal(t, expectedSignature, actualSignature, "unexpected signature")
 }

@@ -21,6 +21,10 @@ var (
 	signerAddress = common.HexToAddress("0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266")
 
 	salt = int64(479249096354)
+
+	// Exchange addresses for testing (from config)
+	ctfExchangeAddr, _        = ExchangeAddressFromContract(chainId, model.CTFExchange)
+	negRiskCtfExchangeAddr, _ = ExchangeAddressFromContract(chainId, model.NegRiskCTFExchange)
 )
 
 func TestBuildOrder(t *testing.T) {
@@ -101,7 +105,7 @@ func TestBuildOrderHash(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotNil(t, order)
 
-	orderHash, err := builder.BuildOrderHash(order, model.CTFExchange)
+	orderHash, err := builder.BuildOrderHash(order, ctfExchangeAddr)
 	assert.NoError(t, err)
 	assert.NotNil(t, orderHash)
 
@@ -121,7 +125,7 @@ func TestBuildOrderHash(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotNil(t, order)
 
-	orderHash, err = builder.BuildOrderHash(order, model.CTFExchange)
+	orderHash, err = builder.BuildOrderHash(order, ctfExchangeAddr)
 	assert.NoError(t, err)
 	assert.NotNil(t, orderHash)
 
@@ -145,7 +149,7 @@ func TestBuildOrderHash(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotNil(t, order)
 
-	orderHash, err = builder.BuildOrderHash(order, model.NegRiskCTFExchange)
+	orderHash, err = builder.BuildOrderHash(order, negRiskCtfExchangeAddr)
 	assert.NoError(t, err)
 	assert.NotNil(t, orderHash)
 
@@ -165,7 +169,7 @@ func TestBuildOrderHash(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotNil(t, order)
 
-	orderHash, err = builder.BuildOrderHash(order, model.NegRiskCTFExchange)
+	orderHash, err = builder.BuildOrderHash(order, negRiskCtfExchangeAddr)
 	assert.NoError(t, err)
 	assert.NotNil(t, orderHash)
 
@@ -192,11 +196,11 @@ func TestBuildOrderSignature(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotNil(t, order)
 
-	orderHash, err := builder.BuildOrderHash(order, model.CTFExchange)
+	orderHash, err := builder.BuildOrderHash(order, ctfExchangeAddr)
 	assert.NoError(t, err)
 	assert.NotNil(t, orderHash)
 
-	orderSignature, err := builder.BuildOrderSignature(ethSigner, order, model.CTFExchange)
+	orderSignature, err := builder.BuildOrderSignature(ethSigner, order, ctfExchangeAddr)
 	assert.NoError(t, err)
 	assert.NotNil(t, orderSignature)
 
@@ -216,11 +220,11 @@ func TestBuildOrderSignature(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotNil(t, order)
 
-	orderHash, err = builder.BuildOrderHash(order, model.CTFExchange)
+	orderHash, err = builder.BuildOrderHash(order, ctfExchangeAddr)
 	assert.NoError(t, err)
 	assert.NotNil(t, orderHash)
 
-	orderSignature, err = builder.BuildOrderSignature(ethSigner, order, model.CTFExchange)
+	orderSignature, err = builder.BuildOrderSignature(ethSigner, order, ctfExchangeAddr)
 	assert.NoError(t, err)
 	assert.NotNil(t, orderSignature)
 
@@ -244,11 +248,11 @@ func TestBuildOrderSignature(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotNil(t, order)
 
-	orderHash, err = builder.BuildOrderHash(order, model.NegRiskCTFExchange)
+	orderHash, err = builder.BuildOrderHash(order, negRiskCtfExchangeAddr)
 	assert.NoError(t, err)
 	assert.NotNil(t, orderHash)
 
-	orderSignature, err = builder.BuildOrderSignature(ethSigner, order, model.NegRiskCTFExchange)
+	orderSignature, err = builder.BuildOrderSignature(ethSigner, order, negRiskCtfExchangeAddr)
 	assert.NoError(t, err)
 	assert.NotNil(t, orderSignature)
 
@@ -268,11 +272,11 @@ func TestBuildOrderSignature(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotNil(t, order)
 
-	orderHash, err = builder.BuildOrderHash(order, model.NegRiskCTFExchange)
+	orderHash, err = builder.BuildOrderHash(order, negRiskCtfExchangeAddr)
 	assert.NoError(t, err)
 	assert.NotNil(t, orderHash)
 
-	orderSignature, err = builder.BuildOrderSignature(ethSigner, order, model.NegRiskCTFExchange)
+	orderSignature, err = builder.BuildOrderSignature(ethSigner, order, negRiskCtfExchangeAddr)
 	assert.NoError(t, err)
 	assert.NotNil(t, orderSignature)
 
@@ -295,7 +299,7 @@ func TestBuildSignedOrder(t *testing.T) {
 		Side:        model.BUY,
 		FeeRateBps:  "100",
 		Nonce:       "0",
-	}, model.CTFExchange)
+	}, ctfExchangeAddr)
 	assert.NoError(t, err)
 	assert.NotNil(t, signedOrder)
 
@@ -325,7 +329,7 @@ func TestBuildSignedOrder(t *testing.T) {
 		Side:        model.BUY,
 		FeeRateBps:  "100",
 		Nonce:       "0",
-	}, model.CTFExchange)
+	}, ctfExchangeAddr)
 	assert.NoError(t, err)
 	assert.NotNil(t, signedOrder)
 
@@ -358,7 +362,7 @@ func TestBuildSignedOrder(t *testing.T) {
 		Side:        model.BUY,
 		FeeRateBps:  "100",
 		Nonce:       "0",
-	}, model.NegRiskCTFExchange)
+	}, negRiskCtfExchangeAddr)
 	assert.NoError(t, err)
 	assert.NotNil(t, signedOrder)
 
@@ -388,7 +392,7 @@ func TestBuildSignedOrder(t *testing.T) {
 		Side:        model.BUY,
 		FeeRateBps:  "100",
 		Nonce:       "0",
-	}, model.NegRiskCTFExchange)
+	}, negRiskCtfExchangeAddr)
 	assert.NoError(t, err)
 	assert.NotNil(t, signedOrder)
 
@@ -425,7 +429,7 @@ func TestBuildSignedOrder2(t *testing.T) {
 		Nonce:         "0",
 		Expiration:    "0",
 		SignatureType: polymarketcontracts.SignatureTypePolyGnosisSafe,
-	}, model.NegRiskCTFExchange)
+	}, negRiskCtfExchangeAddr)
 	assert.NoError(t, err)
 	assert.NotNil(t, signedOrder)
 
@@ -469,7 +473,7 @@ func TestBuildSignedOrderBNBChain(t *testing.T) {
 		Nonce:         "0",
 		Signer:        signerAddress.Hex(),
 		SignatureType: polymarketcontracts.SignatureTypePolyGnosisSafe,
-	}, model.CTFExchange)
+	}, ctfExchangeAddr)
 	assert.NoError(t, err)
 	assert.NotNil(t, signedOrder)
 

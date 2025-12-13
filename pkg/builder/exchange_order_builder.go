@@ -1,6 +1,7 @@
 package builder
 
 import (
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/ivanzzeth/opinion-go-order-utils/pkg/model"
 )
 
@@ -12,8 +13,10 @@ type ExchangeOrderBuilder interface {
 	//
 	// @param orderData
 	//
+	// @param exchangeAddress - the exchange contract address (from API's ctf_exchange_address)
+	//
 	// @returns a SignedOrder object (order + signature)
-	BuildSignedOrder(signer Signer, orderData *model.OrderData, contract model.VerifyingContract) (*model.SignedOrder, error)
+	BuildSignedOrder(signer Signer, orderData *model.OrderData, exchangeAddress common.Address) (*model.SignedOrder, error)
 
 	// Creates an Order object from order data.
 	//
@@ -26,8 +29,10 @@ type ExchangeOrderBuilder interface {
 	//
 	// @param Order
 	//
+	// @param exchangeAddress - the exchange contract address (from API's ctf_exchange_address)
+	//
 	// @returns a OrderHash that is a 'common.Hash'
-	BuildOrderHash(order *model.Order, contract model.VerifyingContract) (model.OrderHash, error)
+	BuildOrderHash(order *model.Order, exchangeAddress common.Address) (model.OrderHash, error)
 
 	// signs an order
 	//
@@ -35,15 +40,8 @@ type ExchangeOrderBuilder interface {
 	//
 	// @param Order
 	//
-	// @returns a OrderSignature that is []byte
-	BuildOrderSignature(signer Signer, order *model.Order, contract model.VerifyingContract) (model.OrderSignature, error)
-
-	// signs an order
-	//
-	// @param signer - the signer instance to use for signing
-	//
-	// @param order hash
+	// @param exchangeAddress - the exchange contract address (from API's ctf_exchange_address)
 	//
 	// @returns a OrderSignature that is []byte
-	// BuildOrderSignature(signer signer.Signer, orderHash model.OrderHash) (model.OrderSignature, error)
+	BuildOrderSignature(signer Signer, order *model.Order, exchangeAddress common.Address) (model.OrderSignature, error)
 }

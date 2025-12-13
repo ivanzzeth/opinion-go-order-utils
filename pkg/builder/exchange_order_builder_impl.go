@@ -12,6 +12,12 @@ import (
 	"github.com/ivanzzeth/opinion-go-order-utils/pkg/utils"
 )
 
+// Deprecated: Use common.Address parameter directly instead.
+// This function is kept for backward compatibility.
+func ExchangeAddressFromContract(chainId *big.Int, contract model.VerifyingContract) (common.Address, error) {
+	return utils.GetVerifyingContractAddress(chainId, contract)
+}
+
 type ExchangeOrderBuilderImpl struct {
 	chainId       *big.Int
 	saltGenerator func() int64
@@ -35,20 +41,22 @@ func NewExchangeOrderBuilderImpl(chainId *big.Int, saltGenerator func() int64) *
 //
 // @param orderData
 //
+// @param exchangeAddress - the exchange contract address (from API's ctf_exchange_address)
+//
 // @returns a SignedOrder object (order + signature)
-func (e *ExchangeOrderBuilderImpl) BuildSignedOrder(s Signer, orderData *model.OrderData, contract model.VerifyingContract) (*model.SignedOrder, error) {
+func (e *ExchangeOrderBuilderImpl) BuildSignedOrder(s Signer, orderData *model.OrderData, exchangeAddress common.Address) (*model.SignedOrder, error) {
 	order, err := e.BuildOrder(orderData)
 	if err != nil {
 		return nil, err
 	}
 
-	signature, err := e.BuildOrderSignature(s, order, contract)
+	signature, err := e.BuildOrderSignature(s, order, exchangeAddress)
 	if err != nil {
 		return nil, err
 	}
 
 	// Validate the signature
-	orderHash, err := e.BuildOrderHash(order, contract)
+	orderHash, err := e.BuildOrderHash(order, exchangeAddress)
 	if err != nil {
 		return nil, err
 	}
@@ -134,14 +142,10 @@ func (e *ExchangeOrderBuilderImpl) BuildOrder(orderData *model.OrderData) (*mode
 //
 // @param Order
 //
+// @param exchangeAddress - the exchange contract address (from API's ctf_exchange_address)
+//
 // @returns a OrderHash that is a 'common.Hash'
-func (e *ExchangeOrderBuilderImpl) BuildOrderHash(order *model.Order, contract model.VerifyingContract) (model.OrderHash, error) {
-	// Get the verifying contract address
-	verifyingContract, err := utils.GetVerifyingContractAddress(e.chainId, contract)
-	if err != nil {
-		return common.Hash{}, err
-	}
-
+func (e *ExchangeOrderBuilderImpl) BuildOrderHash(order *model.Order, exchangeAddress common.Address) (model.OrderHash, error) {
 	// Build the EIP712 TypedData
 	typedData := eip712.TypedData{
 		Types: eip712.Types{
@@ -171,7 +175,7 @@ func (e *ExchangeOrderBuilderImpl) BuildOrderHash(order *model.Order, contract m
 			Name:              "OPINION CTF Exchange",
 			Version:           "1",
 			ChainId:           e.chainId.String(),
-			VerifyingContract: verifyingContract.Hex(),
+			VerifyingContract: exchangeAddress.Hex(),
 		},
 		Message: eip712.TypedDataMessage{
 			"salt":          order.Salt.String(),
@@ -205,13 +209,7 @@ func (e *ExchangeOrderBuilderImpl) BuildOrderHash(order *model.Order, contract m
 	return orderHash, nil
 }
 
-func (e *ExchangeOrderBuilderImpl) BuildOrderSignature(s Signer, order *model.Order, contract model.VerifyingContract) (model.OrderSignature, error) {
-	// Get the verifying contract address
-	verifyingContract, err := utils.GetVerifyingContractAddress(e.chainId, contract)
-	if err != nil {
-		return nil, err
-	}
-
+func (e *ExchangeOrderBuilderImpl) BuildOrderSignature(s Signer, order *model.Order, exchangeAddress common.Address) (model.OrderSignature, error) {
 	// Build the EIP712 TypedData
 	typedData := eip712.TypedData{
 		Types: eip712.Types{
@@ -241,7 +239,7 @@ func (e *ExchangeOrderBuilderImpl) BuildOrderSignature(s Signer, order *model.Or
 			Name:              "OPINION CTF Exchange",
 			Version:           "1",
 			ChainId:           e.chainId.String(),
-			VerifyingContract: verifyingContract.Hex(),
+			VerifyingContract: exchangeAddress.Hex(),
 		},
 		Message: eip712.TypedDataMessage{
 			"salt":          order.Salt.String(),

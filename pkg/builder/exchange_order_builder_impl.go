@@ -168,7 +168,7 @@ func (e *ExchangeOrderBuilderImpl) BuildOrderHash(order *model.Order, contract m
 		},
 		PrimaryType: "Order",
 		Domain: eip712.TypedDataDomain{
-			Name:              "Polymarket CTF Exchange",
+			Name:              "OPINION CTF Exchange",
 			Version:           "1",
 			ChainId:           e.chainId.String(),
 			VerifyingContract: verifyingContract.Hex(),
@@ -238,7 +238,7 @@ func (e *ExchangeOrderBuilderImpl) BuildOrderSignature(s Signer, order *model.Or
 		},
 		PrimaryType: "Order",
 		Domain: eip712.TypedDataDomain{
-			Name:              "Polymarket CTF Exchange",
+			Name:              "OPINION CTF Exchange",
 			Version:           "1",
 			ChainId:           e.chainId.String(),
 			VerifyingContract: verifyingContract.Hex(),

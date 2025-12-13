@@ -10,8 +10,13 @@ import (
 )
 
 func TestGetVerifyingContractAddress(t *testing.T) {
+	// BNB Chain mainnet
+	contract, err := GetVerifyingContractAddress(big.NewInt(56), model.CTFExchange)
+	assert.NoError(t, err)
+	assert.Equal(t, common.HexToAddress("0xF0aebf65490374a477100351291c736c73c11D9F").Hex(), contract.Hex())
+
 	// amoy
-	contract, err := GetVerifyingContractAddress(big.NewInt(80002), model.CTFExchange)
+	contract, err = GetVerifyingContractAddress(big.NewInt(80002), model.CTFExchange)
 	assert.NoError(t, err)
 	assert.Equal(t, common.HexToAddress("0xdFE02Eb6733538f8Ea35D585af8DE5958AD99E40").Hex(), contract.Hex())
 

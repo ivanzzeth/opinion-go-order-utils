@@ -36,10 +36,22 @@ var (
 		Collateral:       common.HexToAddress("0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174"),
 		Conditional:      common.HexToAddress("0x4D97DCd97eC945f40cF65F87097ACe5EA0476045"),
 	}
+
+	_BNB_CHAIN_CONTRACTS = &Contracts{
+		Exchange:         common.HexToAddress("0xF0aebf65490374a477100351291c736c73c11D9F"),
+		FeeModule:        common.HexToAddress("0xC9063Dc52dEEfb518E5b6634A6b8D624bc5d7c36"),
+		NegRiskExchange:  common.HexToAddress(""), // Not used for BNB Chain
+		NegRiskFeeModule: common.HexToAddress(""), // Not used for BNB Chain
+		NegRiskAdapter:   common.HexToAddress(""), // Not used for BNB Chain
+		Collateral:       common.HexToAddress(""), // Not used for BNB Chain
+		Conditional:      common.HexToAddress("0xAD1a38cEc043e70E83a3eC30443dB285ED10D774"),
+	}
 )
 
 func GetContracts(chainId int64) (*Contracts, error) {
 	switch chainId {
+	case 56:
+		return _BNB_CHAIN_CONTRACTS, nil
 	case 137:
 		return _MATIC_CONTRACTS, nil
 	case 80002:

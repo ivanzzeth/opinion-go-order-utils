@@ -14,7 +14,7 @@ import (
 )
 
 var (
-	chainId = new(big.Int).SetInt64(80002)
+	chainId = new(big.Int).SetInt64(56) // BNB Chain mainnet
 	// publicly known private key
 	privateKey, _ = crypto.ToECDSA(common.Hex2Bytes("ac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"))
 	// private key address
@@ -125,7 +125,7 @@ func TestBuildOrderHash(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotNil(t, orderHash)
 
-	expectedOrderHash := common.HexToHash("02ca1d1aa31103804173ad1acd70066cb6c1258a4be6dada055111f9a7ea4e55")
+	expectedOrderHash := common.HexToHash("ffa5f66168645829217956b922fce910391c22a72590ad37ea6ba8623b4c9d88")
 	assert.Equal(t, expectedOrderHash.String(), orderHash.String())
 
 	// NegRisk
@@ -169,7 +169,7 @@ func TestBuildOrderHash(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotNil(t, orderHash)
 
-	expectedOrderHash = common.HexToHash("f15790d3edc4b5aed427b0b543a9206fcf4b1a13dfed016d33bfb313076263b8")
+	expectedOrderHash = common.HexToHash("8660c3bccb4649587c8f28e5ab65cdf3b67e77ebddfe3a14d9d3cd77613e668c")
 	assert.Equal(t, expectedOrderHash.String(), orderHash.String())
 }
 
@@ -224,7 +224,7 @@ func TestBuildOrderSignature(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotNil(t, orderSignature)
 
-	expectedSignature := "302cd9abd0b5fcaa202a344437ec0b6660da984e24ae9ad915a592a90facf5a51bb8a873cd8d270f070217fea1986531d5eec66f1162a81f66e026db653bf7ce1c"
+	expectedSignature := "423fc5785d043d2261b7cd21f4640cefc2218071962b778b3fec2b0bde2e7f432a7124e17d63640e510d0f27e93df438f8b7bfa000ea8503098bb9dd365a7b961b"
 	assert.Equal(t, expectedSignature, common.Bytes2Hex(orderSignature))
 
 	// NegRisk
@@ -276,7 +276,7 @@ func TestBuildOrderSignature(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotNil(t, orderSignature)
 
-	expectedSignature = "1b3646ef347e5bd144c65bd3357ba19c12c12abaeedae733cf8579bc51a2752c0454c3bc6b236957e393637982c769b8dc0706c0f5c399983d933850afd1cbcd1c"
+	expectedSignature = "3c4caac71e3a38ef322bb09c6fa5748fc812062da6e9ed03b4c2d0f6fcff14e05bb78c7c746b72b3cb9d5f35591968683151cfcc5a862c6f23e68e2e359321561c"
 	assert.Equal(t, expectedSignature, common.Bytes2Hex(orderSignature))
 }
 
@@ -342,7 +342,7 @@ func TestBuildSignedOrder(t *testing.T) {
 	assert.Equal(t, signedOrder.SignatureType.String(), "0")
 	assert.NotEmpty(t, hex.EncodeToString(signedOrder.Signature))
 
-	expectedSignature := "302cd9abd0b5fcaa202a344437ec0b6660da984e24ae9ad915a592a90facf5a51bb8a873cd8d270f070217fea1986531d5eec66f1162a81f66e026db653bf7ce1c"
+	expectedSignature := "423fc5785d043d2261b7cd21f4640cefc2218071962b778b3fec2b0bde2e7f432a7124e17d63640e510d0f27e93df438f8b7bfa000ea8503098bb9dd365a7b961b"
 	assert.Equal(t, expectedSignature, common.Bytes2Hex(signedOrder.Signature))
 
 	// NegRisk
@@ -405,7 +405,7 @@ func TestBuildSignedOrder(t *testing.T) {
 	assert.Equal(t, signedOrder.SignatureType.String(), "0")
 	assert.NotEmpty(t, hex.EncodeToString(signedOrder.Signature))
 
-	expectedSignature = "1b3646ef347e5bd144c65bd3357ba19c12c12abaeedae733cf8579bc51a2752c0454c3bc6b236957e393637982c769b8dc0706c0f5c399983d933850afd1cbcd1c"
+	expectedSignature = "3c4caac71e3a38ef322bb09c6fa5748fc812062da6e9ed03b4c2d0f6fcff14e05bb78c7c746b72b3cb9d5f35591968683151cfcc5a862c6f23e68e2e359321561c"
 	assert.Equal(t, expectedSignature, common.Bytes2Hex(signedOrder.Signature))
 }
 

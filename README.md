@@ -1,6 +1,6 @@
-# go-order-utils
+# opinion-go-order-utils
 
-Golang utilities used to generate and sign orders from Polymarket's CTFExchange
+Golang utilities used to generate and sign orders for Opinion Labs' CTF Exchange on BNB Chain
 
 ## Table of Contents
 
@@ -20,7 +20,7 @@ Golang utilities used to generate and sign orders from Polymarket's CTFExchange
 ## Installation
 
 ```bash
-go get github.com/ivanzzeth/polymarket-go-order-utils
+go get github.com/ivanzzeth/opinion-go-order-utils
 ```
 
 ## Quick Start
@@ -32,10 +32,12 @@ import (
     "fmt"
     "math/big"
 
+    "github.com/ethereum/go-ethereum/common"
     "github.com/ethereum/go-ethereum/crypto"
-    "github.com/ivanzzeth/polymarket-go-order-utils/pkg/builder"
-    "github.com/ivanzzeth/polymarket-go-order-utils/pkg/model"
-    "github.com/ivanzzeth/polymarket-go-order-utils/pkg/signer"
+    "github.com/ivanzzeth/ethsig"
+    "github.com/ivanzzeth/opinion-go-order-utils/pkg/builder"
+    "github.com/ivanzzeth/opinion-go-order-utils/pkg/model"
+    polymarketcontracts "github.com/ivanzzeth/polymarket-go-contracts"
 )
 
 func main() {
@@ -43,22 +45,25 @@ func main() {
     privateKey, _ := crypto.HexToECDSA("your_private_key_hex")
 
     // Create a signer
-    ethSigner := signer.NewEthPrivateKeySigner(privateKey)
+    ethSigner := ethsig.NewEthPrivateKeySigner(privateKey)
+    makerAddress := ethSigner.GetAddress()
 
-    // Create order builder for Polygon (chain ID 137)
-    chainId := big.NewInt(137)
+    // Create order builder for BNB Chain (chain ID 56)
+    chainId := big.NewInt(56)
     orderBuilder := builder.NewExchangeOrderBuilderImpl(chainId, nil)
 
     // Build and sign an order
     signedOrder, err := orderBuilder.BuildSignedOrder(ethSigner, &model.OrderData{
-        Maker:       "0xYourAddress",
-        Taker:       "0x0000000000000000000000000000000000000000",
-        TokenId:     "1234",
-        MakerAmount: "1000000", // 1 USDC (6 decimals)
-        TakerAmount: "500000",  // 0.5 USDC worth of outcome tokens
-        Side:        model.BUY,
-        FeeRateBps:  "100",     // 1% fee
-        Nonce:       "0",
+        Maker:         makerAddress.Hex(),
+        Taker:         common.HexToAddress("0x0").Hex(),
+        TokenId:       "1234",
+        MakerAmount:   "1000000", // 1 USDC (6 decimals)
+        TakerAmount:   "500000",  // 0.5 USDC worth of outcome tokens
+        Side:          model.BUY,
+        FeeRateBps:    "100",     // 1% fee
+        Nonce:         "0",
+        Signer:        makerAddress.Hex(),
+        SignatureType: polymarketcontracts.SignatureTypePolyGnosisSafe,
     }, model.CTFExchange)
 
     if err != nil {
@@ -73,14 +78,7 @@ func main() {
 
 ### Signer Interface
 
-The `Signer` interface abstracts the signing mechanism, allowing you to use different signing strategies:
-
-```go
-type Signer interface {
-    Sign(hashedData common.Hash) ([]byte, error)
-    GetAddress() (common.Address, error)
-}
-```
+The `Signer` interface abstracts the signing mechanism, allowing you to use different signing strategies. The signer must implement `ethsig.TypedDataSigner` and `ethsig.AddressGetter` interfaces for EIP-712 typed data signing.
 
 ### Order Data
 
@@ -96,7 +94,7 @@ type Signer interface {
 - **Nonce**: Nonce for onchain cancellations
 - **Signer**: Optional, defaults to maker address
 - **Expiration**: Optional, timestamp after which order expires (0 = no expiration)
-- **SignatureType**: `model.EOA`, `model.POLY_PROXY`, or `model.POLY_GNOSIS_SAFE`
+- **SignatureType**: Signature type from `polymarket-go-contracts` package (e.g., `SignatureTypePolyGnosisSafe`)
 
 ### Verifying Contracts
 
@@ -114,7 +112,7 @@ Two types of exchanges are supported:
 ```go
 import (
     "github.com/ethereum/go-ethereum/crypto"
-    "github.com/ivanzzeth/polymarket-go-order-utils/pkg/signer"
+    "github.com/ivanzzeth/ethsig"
 )
 
 // From hex string
@@ -123,26 +121,33 @@ if err != nil {
     panic(err)
 }
 
-ethSigner := signer.NewEthPrivateKeySigner(privateKey)
+ethSigner := ethsig.NewEthPrivateKeySigner(privateKey)
 
 // Get the address associated with this signer
-address, err := ethSigner.GetAddress()
+address := ethSigner.GetAddress()
 ```
 
 #### Custom Signer Implementation
 
-You can implement your own signer by implementing the `Signer` interface:
+You can implement your own signer by implementing the `Signer` interface which requires:
+- `ethsig.TypedDataSigner`: For EIP-712 typed data signing
+- `ethsig.AddressGetter`: For getting the signer's address
 
 ```go
+import (
+    "github.com/ivanzzeth/ethsig"
+    "github.com/ivanzzeth/ethsig/eip712"
+)
+
 type MyCustomSigner struct {
     // your fields
 }
 
-func (s *MyCustomSigner) Sign(hashedData common.Hash) ([]byte, error) {
-    // your signing logic
+func (s *MyCustomSigner) SignTypedData(typedData eip712.TypedData) ([]byte, error) {
+    // your EIP-712 signing logic
 }
 
-func (s *MyCustomSigner) GetAddress() (common.Address, error) {
+func (s *MyCustomSigner) GetAddress() common.Address {
     // return your address
 }
 ```
@@ -154,11 +159,11 @@ Create an order builder and build an order without signing:
 ```go
 import (
     "math/big"
-    "github.com/ivanzzeth/polymarket-go-order-utils/pkg/builder"
-    "github.com/ivanzzeth/polymarket-go-order-utils/pkg/model"
+    "github.com/ivanzzeth/opinion-go-order-utils/pkg/builder"
+    "github.com/ivanzzeth/opinion-go-order-utils/pkg/model"
 )
 
-chainId := big.NewInt(137) // Polygon mainnet
+chainId := big.NewInt(56) // BNB Chain mainnet
 orderBuilder := builder.NewExchangeOrderBuilderImpl(chainId, nil)
 
 order, err := orderBuilder.BuildOrder(&model.OrderData{
@@ -233,27 +238,6 @@ if err != nil {
 fmt.Printf("Signature: %x\n", signature)
 ```
 
-### Validating Signatures
-
-Verify that a signature is valid:
-
-```go
-import "github.com/ivanzzeth/polymarket-go-order-utils/pkg/signer"
-
-isValid, err := signer.ValidateSignature(
-    signerAddress,
-    orderHash,
-    signature,
-)
-
-if err != nil {
-    panic(err)
-}
-
-if isValid {
-    fmt.Println("Signature is valid!")
-}
-```
 
 ## API Reference
 
@@ -263,7 +247,7 @@ if isValid {
 
 Creates a new order builder instance.
 
-- `chainId`: The chain ID (e.g., 137 for Polygon, 80002 for Polygon Amoy testnet)
+- `chainId`: The chain ID (e.g., 56 for BNB Chain mainnet)
 - `saltGenerator`: Optional function to generate salt values (defaults to random)
 
 #### `BuildOrder(orderData *model.OrderData) (*model.Order, error)`
@@ -278,27 +262,9 @@ Builds and signs an order in one operation.
 
 Generates the EIP-712 typed data hash for an order.
 
-#### `BuildOrderSignature(signer signer.Signer, orderHash model.OrderHash) (model.OrderSignature, error)`
+#### `BuildOrderSignature(signer Signer, order *model.Order, contract model.VerifyingContract) (model.OrderSignature, error)`
 
-Signs an order hash.
-
-### Signer Package
-
-#### `NewEthPrivateKeySigner(privateKey *ecdsa.PrivateKey) *EthPrivateKeySigner`
-
-Creates a new Ethereum private key signer.
-
-#### `Sign(hashedData common.Hash) ([]byte, error)`
-
-Signs a hash and returns the signature.
-
-#### `GetAddress() (common.Address, error)`
-
-Returns the Ethereum address associated with the signer.
-
-#### `ValidateSignature(signer common.Address, hashedData common.Hash, signature []byte) (bool, error)`
-
-Validates a signature against a hash and signer address.
+Signs an order using EIP-712 typed data signing. The signer must implement `ethsig.TypedDataSigner` interface for EIP-712 typed data signing.
 
 ## Examples
 
@@ -313,31 +279,34 @@ import (
 
     "github.com/ethereum/go-ethereum/common"
     "github.com/ethereum/go-ethereum/crypto"
-    "github.com/ivanzzeth/polymarket-go-order-utils/pkg/builder"
-    "github.com/ivanzzeth/polymarket-go-order-utils/pkg/model"
-    "github.com/ivanzzeth/polymarket-go-order-utils/pkg/signer"
+    "github.com/ivanzzeth/ethsig"
+    "github.com/ivanzzeth/opinion-go-order-utils/pkg/builder"
+    "github.com/ivanzzeth/opinion-go-order-utils/pkg/model"
+    polymarketcontracts "github.com/ivanzzeth/polymarket-go-contracts"
 )
 
 func main() {
     // Setup
     privateKey, _ := crypto.HexToECDSA("your_private_key")
-    ethSigner := signer.NewEthPrivateKeySigner(privateKey)
-    makerAddress, _ := ethSigner.GetAddress()
+    ethSigner := ethsig.NewEthPrivateKeySigner(privateKey)
+    makerAddress := ethSigner.GetAddress()
 
-    chainId := big.NewInt(137) // Polygon
+    chainId := big.NewInt(56) // BNB Chain mainnet
     orderBuilder := builder.NewExchangeOrderBuilderImpl(chainId, nil)
 
     // Create a buy order for outcome token
     signedOrder, err := orderBuilder.BuildSignedOrder(ethSigner, &model.OrderData{
-        Maker:       makerAddress.Hex(),
-        Taker:       common.HexToAddress("0x0").Hex(), // Public order
-        TokenId:     "71321045679252212594626385532706912750332728571942532289631379312455583992563",
-        MakerAmount: "1000000",  // 1 USDC
-        TakerAmount: "800000",   // 0.8 outcome tokens (implies 0.8 probability)
-        Side:        model.BUY,
-        FeeRateBps:  "100",      // 1% fee
-        Nonce:       "0",
-        Expiration:  "0",        // No expiration
+        Maker:         makerAddress.Hex(),
+        Taker:         common.HexToAddress("0x0").Hex(), // Public order
+        TokenId:       "71321045679252212594626385532706912750332728571942532289631379312455583992563",
+        MakerAmount:   "1000000",  // 1 USDC
+        TakerAmount:   "800000",   // 0.8 outcome tokens (implies 0.8 probability)
+        Side:          model.BUY,
+        FeeRateBps:    "100",      // 1% fee
+        Nonce:         "0",
+        Expiration:    "0",        // No expiration
+        Signer:        makerAddress.Hex(),
+        SignatureType: polymarketcontracts.SignatureTypePolyGnosisSafe,
     }, model.CTFExchange)
 
     if err != nil {
@@ -358,14 +327,16 @@ func main() {
 
 ```go
 signedOrder, err := orderBuilder.BuildSignedOrder(ethSigner, &model.OrderData{
-    Maker:       makerAddress.Hex(),
-    Taker:       "0x0000000000000000000000000000000000000000",
-    TokenId:     "71321045679252212594626385532706912750332728571942532289631379312455583992563",
-    MakerAmount: "800000",   // 0.8 outcome tokens to sell
-    TakerAmount: "750000",   // Minimum 0.75 USDC to receive
-    Side:        model.SELL,
-    FeeRateBps:  "100",
-    Nonce:       "0",
+    Maker:         makerAddress.Hex(),
+    Taker:         "0x0000000000000000000000000000000000000000",
+    TokenId:       "71321045679252212594626385532706912750332728571942532289631379312455583992563",
+    MakerAmount:   "800000",   // 0.8 outcome tokens to sell
+    TakerAmount:   "750000",   // Minimum 0.75 USDC to receive
+    Side:          model.SELL,
+    FeeRateBps:    "100",
+    Nonce:         "0",
+    Signer:        makerAddress.Hex(),
+    SignatureType: polymarketcontracts.SignatureTypePolyGnosisSafe,
 }, model.CTFExchange)
 ```
 
@@ -373,14 +344,16 @@ signedOrder, err := orderBuilder.BuildSignedOrder(ethSigner, &model.OrderData{
 
 ```go
 signedOrder, err := orderBuilder.BuildSignedOrder(ethSigner, &model.OrderData{
-    Maker:       makerAddress.Hex(),
-    Taker:       "0x0000000000000000000000000000000000000000",
-    TokenId:     "1234",
-    MakerAmount: "1000000",
-    TakerAmount: "500000",
-    Side:        model.BUY,
-    FeeRateBps:  "100",
-    Nonce:       "0",
+    Maker:         makerAddress.Hex(),
+    Taker:         "0x0000000000000000000000000000000000000000",
+    TokenId:       "1234",
+    MakerAmount:   "1000000",
+    TakerAmount:   "500000",
+    Side:          model.BUY,
+    FeeRateBps:    "100",
+    Nonce:         "0",
+    Signer:        makerAddress.Hex(),
+    SignatureType: polymarketcontracts.SignatureTypePolyGnosisSafe,
 }, model.NegRiskCTFExchange) // Use NegRisk exchange
 ```
 

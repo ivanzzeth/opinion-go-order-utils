@@ -141,8 +141,10 @@ github.com/influxdata/line-protocol v0.0.0-20210311194329-9aa0e372d097 h1:vilfsD
 github.com/influxdata/line-protocol v0.0.0-20210311194329-9aa0e372d097/go.mod h1:xaLFMmpvUxqXtVkUJfg9QmT88cDaCJ3ZKgdZ78oO8Qo=
 github.com/ivanzzeth/ethclient v0.1.35 h1:QLySJK1gQl1z3W27Imbhv5Z8ao5BPaPGisGboy3jEH4=
 github.com/ivanzzeth/ethclient v0.1.35/go.mod h1:429cyiRRF0/atJFnCjfkgjZPEFyRgzFRQYHsakF5ifc=
-github.com/ivanzzeth/ethsig v0.0.1 h1:z0lHdNGRIsX7TpwEip/0pLFEXhvb2l8aXIYJsg5xhdM=
-github.com/ivanzzeth/ethsig v0.0.1/go.mod h1:ImQMZpAnI8QyfTQEyqMFVCoxK9ymPr90PTvhGeThnms=
+github.com/ivanzzeth/ethsig v0.1.0 h1:GTQoWgRute5+y/+7JOXT02v9wJJkmwbGojX3TK8PyDQ=
+github.com/ivanzzeth/ethsig v0.1.0/go.mod h1:ImQMZpAnI8QyfTQEyqMFVCoxK9ymPr90PTvhGeThnms=
+github.com/ivanzzeth/opinion-go-contracts v0.0.0-20251215115242-6fb5bcddf8f7 h1:rtYcab0HSPU8gxBoPcK6S0L7sAmW68aubbb61eimWyI=
+github.com/ivanzzeth/opinion-go-contracts v0.0.0-20251215115242-6fb5bcddf8f7/go.mod h1:oNbodW0N0x0M/wK8pwNELbJQjZbz5MXyBYmbyMZL3HI=
 github.com/ivanzzeth/polymarket-go-contracts v0.0.1 h1:93zEJLAHsHmtkkkdFOTgHH0KoPT2wnj0ywfyEjKUMzI=
 github.com/ivanzzeth/polymarket-go-contracts v0.0.1/go.mod h1:D9e/MoUx6VVeCcRHN8R8uzLATqZuO8T4Qa0qjVJA0bs=
 github.com/jackpal/go-nat-pmp v1.0.2 h1:KzKSgb7qkJvOUTqYl9/Hg/me3pWgBmERKrTGD7BdWus=

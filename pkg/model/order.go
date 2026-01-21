@@ -4,7 +4,7 @@ import (
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/common"
-	polymarketcontracts "github.com/ivanzzeth/polymarket-go-contracts"
+	opinioncontracts "github.com/ivanzzeth/opinion-go-contracts"
 )
 
 type OrderSignature = []byte
@@ -46,7 +46,7 @@ type OrderData struct {
 	Side Side
 
 	// Signature type used by the Order. Default value 'EOA'
-	SignatureType polymarketcontracts.SignatureType
+	SignatureType opinioncontracts.SignatureType
 }
 
 type Order struct {

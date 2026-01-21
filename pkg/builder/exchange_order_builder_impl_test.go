@@ -8,8 +8,8 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ivanzzeth/ethsig"
+	opinioncontracts "github.com/ivanzzeth/opinion-go-contracts"
 	"github.com/ivanzzeth/opinion-go-order-utils/pkg/model"
-	polymarketcontracts "github.com/ivanzzeth/polymarket-go-contracts"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -428,7 +428,7 @@ func TestBuildSignedOrder2(t *testing.T) {
 		FeeRateBps:    "100",
 		Nonce:         "0",
 		Expiration:    "0",
-		SignatureType: polymarketcontracts.SignatureTypePolyGnosisSafe,
+		SignatureType: opinioncontracts.SignatureTypePolyGnosisSafe,
 	}, negRiskCtfExchangeAddr)
 	assert.NoError(t, err)
 	assert.NotNil(t, signedOrder)
@@ -472,7 +472,7 @@ func TestBuildSignedOrderBNBChain(t *testing.T) {
 		FeeRateBps:    "0",
 		Nonce:         "0",
 		Signer:        signerAddress.Hex(),
-		SignatureType: polymarketcontracts.SignatureTypePolyGnosisSafe,
+		SignatureType: opinioncontracts.SignatureTypePolyGnosisSafe,
 	}, ctfExchangeAddr)
 	assert.NoError(t, err)
 	assert.NotNil(t, signedOrder)
